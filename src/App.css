@@ -1,9 +1,14 @@
 /* src/App.css */
 
+/* Reset básico e configurações do corpo */
 body, html {
-  background-color: transparent;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  overflow: hidden; /* Evita barras de rolagem */
 }
-
 
 /* Container principal da página de login */
 .login-page {
