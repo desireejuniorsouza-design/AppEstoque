@@ -1,0 +1,194 @@
+/* Container Principal */
+.item-details-container {
+  min-height: 100vh;
+  padding: 1rem;
+  display: grid;
+  place-items: center;
+  background-color: #f3f4f6; /* bg-gray-100 */
+}
+
+.label-card {
+  width: 100%;
+  max-width: 48rem; /* max-w-2xl */
+  background-color: #fff;
+  padding: 1.5rem 2rem; /* p-6 md:p-8 */
+  border-radius: 0.75rem; /* rounded-xl */
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  border: 2px solid #d1d5db; /* border-gray-300 */
+  font-family: sans-serif;
+}
+
+/* Cabeçalho */
+.header {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  border-bottom: 2px solid #9ca3af; /* border-gray-400 */
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.header-logo {
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #4b5563; /* text-gray-700 */
+}
+
+.header-info-grid {
+  grid-column: span 2 / span 2;
+  text-align: right;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 0.5rem;
+}
+
+.header-info-label {
+  text-align: right;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: #4b5563; /* text-gray-600 */
+}
+
+.header-info-value {
+  text-align: left;
+  font-size: 0.875rem;
+  color: #374151; /* text-gray-800 */
+}
+
+/* Conteúdo Principal */
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.left-column {
+  grid-column: span 1 / span 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.right-column {
+  grid-column: span 2 / span 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #d1d5db;
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.data-row-last {
+  border-bottom: none;
+}
+
+.data-label {
+  font-weight: 700;
+  color: #4b5563; /* text-gray-600 */
+}
+
+.data-value {
+  color: #374151; /* text-gray-800 */
+}
+
+/* Seção do QR Code */
+.qr-code-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border: 2px solid #9ca3af; /* border-gray-400 */
+  margin-top: 1rem;
+}
+
+.qr-code-number {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #4b5563; /* text-gray-700 */
+}
+/* Container para o modo de tela */
+.label-container {
+  /* Mantém a estilização original para visualização no navegador */
+  background-color: #f3f4f6;
+  min-height: 100vh;
+  padding: 1rem;
+  display: grid;
+  place-items: center;
+}
+
+/* Container para a etiqueta em si */
+.label-card {
+  width: 100%;
+  max-width: 48rem;
+  background-color: #fff;
+  padding: 1.5rem 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  border: 2px solid #d1d5db;
+  font-family: sans-serif;
+}
+
+
+/*CODIGO
+
+
+/* Regras de impressão para a folha A4 */
+@media print {
+  /* Define o tamanho da página para A4 e remove margens */
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  /* Remove sombras e bordas do card para impressão */
+  .label-card {
+    box-shadow: none;
+    border: none;
+    padding: 0; /* Remove o padding para maximizar o espaço */
+    width: 210mm; /* Largura A4 */
+    height: 297mm; /* Altura A4 */
+  }
+
+  /* Ajusta o container principal para a impressão */
+  .label-container {
+    padding: 0;
+    min-height: auto;
+  }
+}
+
+
+
+
+
+
+/* Estilo para o botão de impressão */
+.print-button {
+  margin-top: 1.5rem;
+  padding: 0.75rem 2rem;
+  background-color: #3b82f6; /* bg-blue-500 */
+  color: white;
+  font-weight: 700;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.print-button:hover {
+  background-color: #2563eb; /* hover:bg-blue-600 */
+}
+
+/* Esconde o botão e outros elementos da tela durante a impressão */
+@media print {
+  .print-button {
+    display: none;
+  }
+}

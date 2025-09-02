@@ -1,0 +1,173 @@
+/* src/components/Dashboard.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+/* Reset básico para melhor consistência */
+:root {
+  --primary-color: #4f46e5;
+  --primary-hover-color: #4338ca;
+  --background-color: #F4F6F9;
+  --card-background-color: #ffffff;
+  --text-color-primary: #334155;
+  --text-color-secondary: #64748B;
+  --border-color: #E2E8F0;
+  --list-item-hover: #EEF2FF; /* Tom mais suave de azul claro */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-color-primary);
+  background-color: var(--background-color);
+}
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1.5rem;
+}
+
+.dashboard-card {
+  background-color: var(--card-background-color);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); /* Sombra mais suave */
+  border-radius: 1.5rem;
+  padding: 2.5rem; /* Padding um pouco maior para respiro */
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem; /* Espaçamento entre os elementos */
+  border: 1px solid var(--border-color); /* Borda sutil */
+}
+
+h2, p {
+  color: var(--text-color-primary);
+  margin: 0;
+}
+
+.dashboard-buttons-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Tamanho mínimo do botão um pouco maior */
+  gap: 1.25rem;
+}
+
+.dashboard-button {
+  padding: 1rem 1.5rem;
+  background-color: var(--primary-color);
+  color: #fff;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transição mais suave */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.dashboard-button:hover {
+  background-color: var(--primary-hover-color);
+  transform: translateY(-3px); /* Efeito de elevação mais pronunciado */
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column; /* Empilha em telas pequenas */
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .input-container {
+    flex-direction: row; /* Volta a alinhar em linha em telas maiores */
+    gap: 0.75rem;
+  }
+}
+
+.input-field {
+  flex: 1;
+  padding: 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.6rem;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.input-field:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); /* Sombra de foco sutil */
+}
+
+.list-container {
+  max-height: 450px; /* Altura um pouco maior para mais itens visíveis */
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  margin-top: 1rem;
+  background-color: var(--card-background-color); /* Fundo branco para contraste */
+}
+
+.list-item {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-radius: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item:hover {
+  background-color: var(--list-item-hover);
+}
+
+/* Ajuste nos text-colors da lista */
+.list-item p {
+  color: var(--text-color-primary);
+}
+
+.list-item p.text-gray-600 {
+  color: var(--text-color-secondary);
+}
+
+.list-item p.text-sm {
+  color: var(--text-color-secondary);
+}
+
+/* Cores das mensagens de feedback */
+.message-box.error {
+  background-color: #FEE2E2;
+  color: #B91C1C;
+  border: 1px solid #EF4444;
+}
+
+.message-box.success {
+  background-color: #D1FAE5;
+  color: #065F46;
+  border: 1px solid #10B981;
+}
+
+.message-box.info {
+  background-color: #E0F2FE;
+  color: #0C4A6E;
+  border: 1px solid #38BDF8;
+}
+
+/* Estilo do botão Sair */
+.dashboard-button.bg-red-500 {
+  background-color: #EF4444;
+}
+
+.dashboard-button.hover\:bg-red-600:hover {
+  background-color: #DC2626;
+}

@@ -1,0 +1,9 @@
+/* src/global.css */
+.form-container {
+  max-height: 80vh;
+  max-width: 100vw;
+  overflow: auto;
+  padding: 20px;
+  scroll-behavior: smooth;
+}
+
