@@ -104,3 +104,25 @@
         display: none;
     }
 }
+@media (forced-colors: active) {
+  body {
+    background: Window;
+    color: WindowText;
+    border: 1px solid ButtonText;
+  }
+}
+  .qr-codes-container {
+    background: Window;
+    color: WindowText;
+    border-color: ButtonText;
+  }
+  .qr-code-item {
+    border-color: ButtonText;
+    background: Window;
+    color: WindowText;
+  }
+  .print-button {
+    background: ButtonFace;
+    color: ButtonText;
+    border-color: ButtonText;
+  }

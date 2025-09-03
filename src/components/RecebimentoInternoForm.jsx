@@ -174,10 +174,11 @@ export default function RecebimentoInternoForm() {
                             {qrCodeValues.map((item, index) => (
                                 <div key={item.id} className="qr-code-item">
                                     <div className="qr-code-info">
-                                        <h3>Etiqueta {index + 1}</h3>
+                                        <h3>Palete {index + 1}</h3>
                                         <p><strong>ID:</strong> {item.id}</p>
-                                        <p><strong>Lote:</strong> {item.lote}</p>
                                         <p><strong>Espécie:</strong> {item.especie}</p>
+                                        <p><strong>Lote:</strong> {item.lote}</p>
+                                        <p><strong>Trat:</strong> {item.tratamento}</p>
                                         <p><strong>Sacos no Palete:</strong> {item.quantidade_palete}</p>
                                         <p><strong>Total do Lote:</strong> {item.total_lote}</p>
                                         <p><strong>Posição Atual:</strong> {item.local_armazenado}</p>

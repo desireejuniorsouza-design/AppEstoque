@@ -201,3 +201,11 @@
         display: none;
     }
 }
+
+body {
+  overflow-y: auto;
+}
+body {
+  overflow-y: scroll;
+}
+/* Fim do arquivo src/components/RecebimentoExternoForm.css */

@@ -1,0 +1,38 @@
+@media print {
+  /* Oculta o botão de impressão */
+  .print-button {
+    display: none;
+  }
+  
+  /* Garante que o corpo da página e o contêiner de etiquetas sejam exibidos */
+  body, .label-container {
+    visibility: visible;
+  }
+  
+  /* Garante que o elemento da etiqueta seja exibido */
+  .label-card, .qr-code-item {
+    visibility: visible;
+    display: block; /* Garante que o layout funcione */
+    page-break-after: always; /* Força quebra de página se houver mais de uma etiqueta */
+  }
+  
+  /* Oculta outros elementos da interface que você não quer imprimir */
+  .item-details-container.loading,
+  .item-details-container.error,
+  .item-details-container.not-found {
+    display: none;
+  }
+  
+  /* Remove margens e padding para otimizar o espaço */
+  body, html {
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Garante que o conteúdo seja preto e as imagens (QR Code) apareçam */
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color: black;
+  }
+}
