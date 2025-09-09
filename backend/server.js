@@ -7,20 +7,28 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3001;
 
-// As credenciais do Supabase ficarão em um arquivo .env,
-// garantindo que não sejam expostas. Use a 'service role key' aqui.
+// Verificação das chaves do Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY; // Use a chave de serviço
+if (!supabaseUrl || !supabaseKey) {
+    console.error('Erro: Variáveis de ambiente SUPABASE_URL ou SUPABASE_SERVICE_KEY não estão definidas.');
+    process.exit(1); // Encerra o servidor se as chaves não estiverem configuradas
+}
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-app.use(cors()); // Permite que o React (no localhost:3000) acesse esta API
+app.use(cors());
 app.use(express.json());
 
-// Endpoint para o recebimento externo A sua lógica de negócio complexa, que estava no React, agora vive aqui.
+// Endpoint para o recebimento externo
 app.post('/api/recebimento', async (req, res) => {
     const { formData, lotes } = req.body;
 
-    // Função auxiliar para calcular o total do lote.
+    // Adicione uma validação inicial para garantir que os dados existem
+    if (!formData || !lotes || !Array.isArray(lotes)) {
+        return res.status(400).json({ error: 'Dados de recebimento inválidos.' });
+    }
+
     const calculateTotalLote = (formula) => {
         if (!formula) return 0;
         const cleanFormula = formula.replace(/x/g, '*');
@@ -33,7 +41,7 @@ app.post('/api/recebimento', async (req, res) => {
     };
 
     try {
-        // Insere os dados do transporte na tabela 'recebimentos_externos'.
+        // Insere os dados do transporte
         const { data: recebimentoData, error: recebimentoError } = await supabase
             .from('recebimentos_externos')
             .insert({
@@ -54,8 +62,13 @@ app.post('/api/recebimento', async (req, res) => {
         const recebimentoId = recebimentoData[0].id;
         const allInserts = [];
 
-        // Processa cada lote e prepara os dados para inserção.
         for (const lote of lotes) {
+            // Validação de dados de cada lote para evitar erros
+            if (!lote.formulaCalculo || !lote.especie || !lote.lote) {
+                console.error('Lote com dados ausentes:', lote);
+                continue; // Pula este lote e continua com os próximos
+            }
+
             const totalSacos = calculateTotalLote(lote.formulaCalculo);
             let paleteQuantities = [];
             const parts = lote.formulaCalculo.split('+').map(part => part.trim());
@@ -78,7 +91,6 @@ app.post('/api/recebimento', async (req, res) => {
                 }
             }
 
-            // Cria um registro para cada palete com base na quantidade calculada.
             for (const quantidade of paleteQuantities) {
                 allInserts.push({
                     origem: 'externo',
@@ -89,7 +101,8 @@ app.post('/api/recebimento', async (req, res) => {
                     peneira: lote.peneira,
                     lote: lote.lote,
                     safra: lote.safra,
-                    peso: parseFloat(lote.peso),
+                    // Use o operador || para garantir que o valor seja um número
+                    peso: parseFloat(lote.peso) || 0,
                     produtor: lote.produtor,
                     validade: lote.validade,
                     tratamento: lote.tratamento,
@@ -102,7 +115,6 @@ app.post('/api/recebimento', async (req, res) => {
             }
         }
 
-        // Insere todos os paletes na tabela 'estoque_geral'.
         const { data: estoqueData, error: estoqueError } = await supabase
             .from('estoque_geral')
             .insert(allInserts)
@@ -110,10 +122,9 @@ app.post('/api/recebimento', async (req, res) => {
 
         if (estoqueError) {
             console.error('Erro ao inserir estoque:', estoqueError);
-            return res.status(500).json({ error: 'Erro ao registrar estoque.' });
+            return res.status(500).json({ error: 'Erro ao registrar estoque.', details: estoqueError.message });
         }
         
-        // Retorna os dados inseridos (com os IDs) para que o React gere os QR Codes.
         res.status(201).json({ estoqueData });
 
     } catch (error) {
@@ -125,8 +136,12 @@ app.post('/api/recebimento', async (req, res) => {
 // Novo endpoint para o recebimento interno
 app.post('/api/recebimento-interno', async (req, res) => {
     const { lotes } = req.body;
+    
+    // Adicione uma validação inicial para garantir que os lotes existem
+    if (!lotes || !Array.isArray(lotes)) {
+        return res.status(400).json({ error: 'Dados de lote inválidos.' });
+    }
 
-    // Função para calcular o total do lote, reutilizada
     const calculateTotalLote = (formula) => {
         if (!formula) return 0;
         const cleanFormula = formula.replace(/x/g, '*');
@@ -141,11 +156,16 @@ app.post('/api/recebimento-interno', async (req, res) => {
     try {
         const allInserts = [];
         for (const lote of lotes) {
+            // Validação de dados de cada lote para evitar erros
+            if (!lote.formulaCalculo || !lote.especie || !lote.lote) {
+                console.error('Lote com dados ausentes:', lote);
+                continue;
+            }
+
             const totalSacos = calculateTotalLote(lote.formulaCalculo);
             let paleteQuantities = [];
             const formula = lote.formulaCalculo;
             
-            // Lógica para analisar a fórmula, movida do frontend para o backend
             const parts = formula.split('+').map(part => part.trim());
 
             for (const part of parts) {
@@ -171,7 +191,6 @@ app.post('/api/recebimento-interno', async (req, res) => {
                 paleteQuantities.push(lastro);
             }
 
-            // Agora, cria os objetos de inserção com base nas quantidades calculadas
             for (const quantidade of paleteQuantities) {
                 allInserts.push({
                     origem: 'interno',
@@ -200,35 +219,32 @@ app.post('/api/recebimento-interno', async (req, res) => {
             .insert(allInserts)
             .select();
 
-        if (error) throw error;
+        if (error) {
+            console.error('Erro ao inserir estoque:', error);
+            return res.status(500).json({ error: 'Erro ao registrar recebimento interno.', details: error.message });
+        }
         
         res.status(201).json({ estoqueData: data });
 
     } catch (error) {
         console.error('Erro ao processar o formulário de recebimento interno:', error);
-        res.status(500).json({ error: 'Erro ao registrar recebimento interno.' });
+        res.status(500).json({ error: 'Erro interno do servidor.' });
     }
 });
 
 // Endpoint Estoque
-
 app.get('/api/estoque', async (req, res) => {
-    // Parâmetros de busca e ordenação enviados pelo frontend
     const { searchTerm, sortBy, sortDirection } = req.query;
 
     let query = supabase.from('estoque_geral').select('*');
 
-    // Lógica para filtrar a busca (se o searchTerm for fornecido)
     if (searchTerm && searchTerm.trim() !== '') {
-    query = query.or(`lote.ilike.%${searchTerm}%,produtor.ilike.%${searchTerm}%,especie.ilike.%${searchTerm}%`);
-}
+        query = query.or(`lote.ilike.%${searchTerm}%,produtor.ilike.%${searchTerm}%,especie.ilike.%${searchTerm}%`);
+    }
 
-
-    // Lógica para ordenar os resultados (se sortBy for fornecido)
     if (sortBy) {
         query = query.order(sortBy, { ascending: sortDirection === 'asc' });
     } else {
-        // Ordenação padrão (por exemplo, por data de criação)
         query = query.order('created_at', { ascending: false });
     }
 
@@ -237,7 +253,7 @@ app.get('/api/estoque', async (req, res) => {
 
         if (error) {
             console.error('Erro ao buscar dados do estoque:', error);
-            return res.status(500).json({ error: 'Erro ao buscar dados do estoque.' });
+            return res.status(500).json({ error: 'Erro ao buscar dados do estoque.', details: error.message });
         }
 
         res.status(200).json(data);
@@ -259,7 +275,7 @@ app.delete('/api/estoque/:id', async (req, res) => {
 
         if (error) {
             console.error('Erro ao excluir registro:', error);
-            return res.status(500).json({ error: 'Erro ao excluir o registro.' });
+            return res.status(500).json({ error: 'Erro ao excluir o registro.', details: error.message });
         }
 
         res.status(200).json({ message: 'Registro excluído com sucesso.' });
@@ -268,30 +284,31 @@ app.delete('/api/estoque/:id', async (req, res) => {
         res.status(500).json({ error: 'Erro interno do servidor.' });
     }
 });
-// Novo Endpoint para atualizar um registro (PUT)
+
+// Endpoint para atualizar um registro (PUT)
 app.put('/api/estoque/:id', async (req, res) => {
     const { id } = req.params;
-    const updateData = req.body; // Dados do registro a serem atualizados
+    const updateData = req.body; 
     
+    delete updateData.id; 
+
     try {
         const { data, error } = await supabase
             .from('estoque_geral')
             .update(updateData)
             .eq('id', id)
-            .select(); // Adicione .select() para retornar o registro atualizado
+            .select();
 
         if (error) {
             console.error('Erro ao atualizar registro:', error);
-            return res.status(500).json({ error: 'Erro ao atualizar o registro.' });
+            return res.status(400).json({ error: 'Erro ao atualizar o registro.', details: error.message });
         }
 
-        // Verifica se o registro foi encontrado e atualizado
         if (data && data.length > 0) {
-            res.status(200).json(data[0]); // Retorna o registro atualizado
+            res.status(200).json(data[0]);
         } else {
-            res.status(404).json({ error: 'Registro não encontrado.' });
+            res.status(404).json({ error: 'Registro não encontrado para atualização.' });
         }
-        
     } catch (error) {
         console.error('Erro no backend:', error);
         res.status(500).json({ error: 'Erro interno do servidor.' });

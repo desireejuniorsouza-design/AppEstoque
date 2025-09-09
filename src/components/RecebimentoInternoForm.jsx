@@ -6,7 +6,6 @@ import './RecebimentoInternoForm.css';
 import './Etiquetas.css';
 
 
-
 // Estado inicial para um único lote
 const initialLoteState = () => ({
     id: Date.now(),
@@ -108,87 +107,103 @@ export default function RecebimentoInternoForm() {
         }
     };
 
+    // Função auxiliar para agrupar os QR codes por lote
+    const groupQrCodesByLote = (qrCodes) => {
+        const groups = {};
+        qrCodes.forEach(item => {
+            const loteKey = item.lote;
+            if (!groups[loteKey]) {
+                groups[loteKey] = [];
+            }
+            groups[loteKey].push(item);
+        });
+        return groups;
+    };
+
+    const groupedQrCodes = groupQrCodesByLote(qrCodeValues);
+
     return (
-        <div className="min-h-screen bg-gray-100 p-4 flex flex-col items-center font-sans overflow-y-auto">
-            <div className="w-full max-w-4xl bg-white rounded-xl shadow-lg p-6 md:p-8 space-y-8">
-                <h1 className="text-3xl font-bold text-gray-800 text-center">Recebimento Interno 📦</h1>
+        <div className="recebimento-interno-container">
+            <div className="recebimento-interno-card">
+                <h1 className="recebimento-interno-title">Recebimento Interno 📦</h1>
 
                 {message.text && (
-                    <div className={`p-4 rounded-lg font-medium text-center transition-all duration-300
-            ${message.type === 'error' ? 'bg-red-100 text-red-700 border border-red-300' : ''}
-            ${message.type === 'success' ? 'bg-green-100 text-green-700 border border-green-300' : ''}
-            ${message.type === 'info' ? 'bg-blue-100 text-blue-700 border border-blue-300' : ''}
-          `}>
+                    <div className={`recebimento-interno-message ${message.type}`}>
                         {message.text}
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="recebimento-interno-form">
                     {lotes.map((lote, index) => (
-                        <div key={lote.id} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm lote-section">
-                            <h3 className="text-xl font-semibold text-gray-700 mb-4">Lote {index + 1} 🌱</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <input name="unidadeProdutora" value={lote.unidadeProdutora ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Nome da Unidade Produtora" required className="input-field" />
-                                <input name="especie" value={lote.especie ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Espécie" required className="input-field" />
-                                <input name="categoria" value={lote.categoria ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Categoria" className="input-field" />
-                                <input name="hibrido" value={lote.hibrido ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Híbrido" className="input-field" />
-                                <input name="peneira" value={lote.peneira ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Peneira" className="input-field" />
-                                <input name="lote" value={lote.lote ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Lote" className="input-field" />
-                                <input name="safra" value={lote.safra ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Safra" className="input-field" />
-                                <input name="peso" type="text" value={lote.peso ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Peso (ex: 20,50)" required className="input-field" />
-                                <input name="produtor" value={lote.produtor ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Produtor" required className="input-field" />
-                                <input name="validade" type="text" value={lote.validade ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Validade (ex: MM/AA)" className="input-field" />
-                                <input name="tratamento" value={lote.tratamento ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Tratamento" className="input-field" />
-                                <input name="sacaria" value={lote.sacaria ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Sacaria" className="input-field" />
-                                <input name="quantidadeLastro" type="number" value={lote.quantidadeLastro ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Quantidade Lastro" className="input-field" />
-                                <input name="quantidadePalete" type="number" value={lote.quantidadePalete ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Quantidade Palete" className="input-field" />
-                                <input name="formulaCalculo" type="text" value={lote.formulaCalculo ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Fórmula de Cálculo (ex: 10*60+5)" className="input-field" />
-                                <input name="totalLote" type="text" value={lote.totalLote ?? ''} placeholder="Total do Lote" readOnly className="input-field bg-gray-200 cursor-not-allowed" />
-                                <input name="localArmazenado" value={lote.localArmazenado ?? ''} onChange={(e) => handleLoteChange(index, e)} placeholder="Local Armazenado" className="input-field" />
+                        <div key={lote.id} className="lote-section">
+                            <h3 className="lote-title">Lote {index + 1} 🌱</h3>
+                            <div className="input-grid">
+                                <input name="unidadeProdutora" value={sanitize(lote.unidadeProdutora)} onChange={(e) => handleLoteChange(index, e)} placeholder="Nome da Unidade Produtora" required className="input-field" />
+                                <input name="especie" value={sanitize(lote.especie)} onChange={(e) => handleLoteChange(index, e)} placeholder="Espécie" required className="input-field" />
+                                <input name="categoria" value={sanitize(lote.categoria)} onChange={(e) => handleLoteChange(index, e)} placeholder="Categoria" className="input-field" />
+                                <input name="hibrido" value={sanitize(lote.hibrido)} onChange={(e) => handleLoteChange(index, e)} placeholder="Híbrido" className="input-field" />
+                                <input name="peneira" value={sanitize(lote.peneira)} onChange={(e) => handleLoteChange(index, e)} placeholder="Peneira" className="input-field" />
+                                <input name="lote" value={sanitize(lote.lote)} onChange={(e) => handleLoteChange(index, e)} placeholder="Lote" className="input-field" />
+                                <input name="safra" value={sanitize(lote.safra)} onChange={(e) => handleLoteChange(index, e)} placeholder="Safra" className="input-field" />
+                                <input name="peso" type="text" value={sanitize(lote.peso)} onChange={(e) => handleLoteChange(index, e)} placeholder="Peso (ex: 20,50)" required className="input-field" />
+                                <input name="produtor" value={sanitize(lote.produtor)} onChange={(e) => handleLoteChange(index, e)} placeholder="Produtor" required className="input-field" />
+                                <input name="validade" type="text" value={sanitize(lote.validade)} onChange={(e) => handleLoteChange(index, e)} placeholder="Validade (ex: MM/AA)" className="input-field" />
+                                <input name="tratamento" value={sanitize(lote.tratamento)} onChange={(e) => handleLoteChange(index, e)} placeholder="Tratamento" className="input-field" />
+                                <input name="sacaria" value={sanitize(lote.sacaria)} onChange={(e) => handleLoteChange(index, e)} placeholder="Sacaria" className="input-field" />
+                                <input name="quantidadeLastro" type="number" value={sanitize(lote.quantidadeLastro)} onChange={(e) => handleLoteChange(index, e)} placeholder="Quantidade Lastro" className="input-field" />
+                                <input name="quantidadePalete" type="number" value={sanitize(lote.quantidadePalete)} onChange={(e) => handleLoteChange(index, e)} placeholder="Quantidade Palete" className="input-field" />
+                                <input name="formulaCalculo" type="text" value={sanitize(lote.formulaCalculo)} onChange={(e) => handleLoteChange(index, e)} placeholder="Fórmula de Cálculo (ex: 10*60+5)" className="input-field" />
+                                <input name="totalLote" type="text" value={sanitize(lote.totalLote)} placeholder="Total do Lote" readOnly className="input-field-disabled" />
+                                <input name="localArmazenado" value={sanitize(lote.localArmazenado)} onChange={(e) => handleLoteChange(index, e)} placeholder="Local Armazenado" className="input-field" />
                             </div>
                             {lotes.length > 1 && (
-                                <button type="button" onClick={() => handleRemoveLote(index)} className="mt-4 w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition-colors">
+                                <button type="button" onClick={() => handleRemoveLote(index)} className="remove-lote-button">
                                     Remover Lote
                                 </button>
                             )}
                         </div>
                     ))}
 
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <button type="button" onClick={handleAddLote} className="w-full sm:w-1/2 py-3 px-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+                    <div className="button-group">
+                        <button type="button" onClick={handleAddLote} className="add-lote-button">
                             + Adicionar Lote
                         </button>
-                        <button type="submit" disabled={loading} className="w-full sm:w-1/2 py-3 px-4 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        <button type="submit" disabled={loading} className="submit-button">
                             {loading ? 'Processando...' : 'Gerar QR Code(s)'}
                         </button>
                     </div>
                 </form>
 
-                {qrCodeValues.length > 0 && (
+                {Object.keys(groupedQrCodes).length > 0 && (
                     <div className="qr-codes-container">
                         <button className="print-button" onClick={() => window.print()}>
                             Imprimir Etiquetas 🖨️
                         </button>
-                        <h1>Etiquetas do Lote</h1>
-                        <div className="qr-codes-grid">
-                            {qrCodeValues.map((item, index) => (
-                                <div key={item.id} className="qr-code-item">
-                                    <div className="qr-code-info">
-                                        <h3>Palete {index + 1}</h3>
-                                        <p><strong>ID:</strong> {item.id}</p>
-                                        <p><strong>Espécie:</strong> {item.especie}</p>
-                                        <p><strong>Lote:</strong> {item.lote}</p>
-                                        <p><strong>Trat:</strong> {item.tratamento}</p>
-                                        <p><strong>Sacos no Palete:</strong> {item.quantidade_palete}</p>
-                                        <p><strong>Total do Lote:</strong> {item.total_lote}</p>
-                                        <p><strong>Posição Atual:</strong> {item.local_armazenado}</p>
-                                    </div>
-                                    <div className="qr-code-image">
-                                        <QRCode value={item.id} size={180} />
-                                    </div>
+                        
+                        {Object.entries(groupedQrCodes).map(([loteId, items]) => (
+                            <div key={loteId}>
+                                <h1>Etiquetas do Lote: {loteId}</h1>
+                                <div className="qr-codes-grid">
+                                    {items.map((item, index) => (
+                                        <div key={item.id} className="qr-code-item">
+                                            <div className="qr-code-info">
+                                                <h3>Palete {index + 1}</h3>
+                                                <p><strong>ID:</strong> {item.id}</p>
+                                                <p><strong>Espécie:</strong> {item.especie}</p>
+                                                <p><strong>Lote:</strong> {item.lote}</p>
+                                                <p><strong>Trat:</strong> {item.tratamento}</p>
+                                                <p><strong>Sacos no Palete:</strong> {item.quantidade_palete}</p>
+                                                <p><strong>Total do Lote:</strong> {item.total_lote}</p>
+                                                <p><strong>Posição Atual:</strong> {item.local_armazenado}</p>
+                                            </div>
+                                            <div className="qr-code-image">
+                                                <QRCode value={item.id} size={180} />
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))}
                     </div>
                 )}
             </div>

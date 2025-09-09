@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { Html5QrcodeScanner } from 'html5-qrcode';
+import "./TransferenciaForm.css"; // Importa o novo arquivo de estilo
 
 // Componente auxiliar para integrar a nova biblioteca ao React
 const QrScannerComponent = ({ onResult }) => {
@@ -118,38 +119,33 @@ export default function TransferenciaForm() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 p-4 flex flex-col items-center justify-center font-sans">
-            <div className="w-full max-w-lg bg-white rounded-xl shadow-lg p-6 md:p-8 space-y-6 text-gray-800">
-                
-                <h1 className="text-2xl md:text-3xl font-bold text-center">Transferência de Posição 🚚</h1>
+        <div className="transferencia-container">
+            <div className="transferencia-card">
+                <h1 className="transferencia-title">Transferência de Posição 🚚</h1>
 
                 {message.text && (
-                    <div className={`p-4 rounded-lg font-medium text-center transition-all duration-300
-                        ${message.type === 'error' ? 'bg-red-100 text-red-700 border border-red-300' : ''}
-                        ${message.type === 'success' ? 'bg-green-100 text-green-700 border border-green-300' : ''}
-                        ${message.type === 'info' ? 'bg-blue-100 text-blue-700 border border-blue-300' : ''}
-                    `}>
+                    <div className={`transferencia-message ${message.type}`}>
                         {message.text}
                     </div>
                 )}
 
                 {isScanning ? (
-                    <div className="space-y-4">
-                        <p className="text-center text-gray-600">Aponte a câmera para o QR Code do item que deseja transferir.</p>
-                        <div className="w-full flex justify-center">
-                            <div className="w-full max-w-xs aspect-square border-2 border-dashed border-gray-300 rounded-xl overflow-hidden relative">
+                    <div className="scanner-section">
+                        <p className="scanner-text">Aponte a câmera para o QR Code do item que deseja transferir.</p>
+                        <div className="scanner-wrapper">
+                            <div className="scanner-camera-container">
                                 <QrScannerComponent onResult={handleScan} />
-                                <div className="absolute top-0 left-0 w-full h-full bg-transparent border-4 border-indigo-500 rounded-xl pointer-events-none"></div>
+                                <div className="scanner-frame"></div>
                             </div>
                         </div>
                     </div>
                 ) : (
                     <>
                         {loteData ? (
-                            <div className="space-y-6">
-                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 shadow-inner">
-                                    <h3 className="text-xl font-semibold mb-3">Detalhes do Lote 📋</h3>
-                                    <div className="space-y-2 text-sm">
+                            <div className="lote-details-section">
+                                <div className="lote-card">
+                                    <h3 className="lote-details-title">Detalhes do Lote 📋</h3>
+                                    <div className="lote-info">
                                         <p>ID: <strong className="font-mono">{loteData.id}</strong></p>
                                         <p>Espécie: <strong>{loteData.especie}</strong></p>
                                         <p>Lote: <strong>{loteData.lote}</strong></p>
@@ -159,40 +155,40 @@ export default function TransferenciaForm() {
                                     </div>
                                 </div>
 
-                                <form onSubmit={handleTransfer} className="space-y-4">
-                                    <label className="block">
-                                        <span className="text-gray-700 font-medium">Nova Posição:</span>
+                                <form onSubmit={handleTransfer} className="transferencia-form">
+                                    <label className="form-label">
+                                        <span className="label-text">Nova Posição:</span>
                                         <input
                                             type="text"
                                             value={novaPosicao}
                                             onChange={(e) => setNovaPosicao(e.target.value)}
                                             required
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-2"
+                                            className="form-input"
                                         />
                                     </label>
                                     
-                                    <label className="block">
-                                        <span className="text-gray-700 font-medium">Quantidade para Transferir (Palete Inteiro):</span>
+                                    <label className="form-label">
+                                        <span className="label-text">Quantidade para Transferir (Palete Inteiro):</span>
                                         <input
                                             type="text"
                                             value={loteData.quantidade_palete}
                                             readOnly
-                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-200 cursor-not-allowed p-2"
+                                            className="form-input-readonly"
                                         />
                                     </label>
 
-                                    <div className="flex flex-col sm:flex-row gap-4">
+                                    <div className="button-group">
                                         <button 
                                             type="submit" 
                                             disabled={loading} 
-                                            className="w-full flex-1 py-3 px-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                            className="transfer-button"
                                         >
                                             {loading ? 'Transferindo...' : 'Confirmar Transferência'}
                                         </button>
                                         <button 
                                             type="button" 
                                             onClick={() => setIsScanning(true)} 
-                                            className="w-full flex-1 py-3 px-4 bg-gray-300 text-gray-800 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
+                                            className="scan-button"
                                         >
                                             Escanear Outro QR Code
                                         </button>
@@ -200,7 +196,7 @@ export default function TransferenciaForm() {
                                 </form>
                             </div>
                         ) : (
-                            <p className="text-center text-gray-500">Aguardando escaneamento...</p>
+                            <p className="status-message">Aguardando escaneamento...</p>
                         )}
                     </>
                 )}
